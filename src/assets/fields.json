@@ -1,0 +1,5 @@
+[
+  { "fieldName": "Title", "type": "text", "required": true },
+  { "fieldName": "Age", "type": "number", "required": false },
+  { "fieldName": "JoiningDate", "type": "date", "required": true }
+]
