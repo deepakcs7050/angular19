@@ -1,29 +1,31 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-  <div formArrayName="entries">
-    @for (entry of entries().controls; track $index) {
-      <div [formGroupName]="$index" class="entry-row">
+<div class="text-center">
 
-        @for (field of fields(); track field.fieldName) {
-          <label>{{ field.fieldName }}</label>
+    <h2 class="text-primary text-center">Counter Example!</h2>
 
-          <input 
-            [type]="field.type" 
-            [formControlName]="field.fieldName"
-            [required]="field.required"
-          />
+    <hr>
 
-          @if (entry.get(field.fieldName)?.invalid && entry.get(field.fieldName)?.touched) {
-            <small class="error">{{ field.fieldName }} is required</small>
-          }
-        }
+    <h2>App Counter : {{counter$ |async}}</h2>
 
-        <button type="button" (click)="removeEntry($index)">Remove</button>
-      </div>
-    }
-  </div>
+    <div>
+        <button class="btn btn-success m-2" (click)="onIncrement()">Increment</button>
+        <button class="btn btn-warning m-2" (click)="onDecrement()">Decrement</button>
+        <button class="btn btn-secondary m-2" (click)="onReset()">Reset</button>
+        
+    </div>
+ <hr>
 
-  <button type="button" (click)="addEntry()">Add More</button>
-  <button type="submit">Submit</button>
-</form>
+    <div>
+        <app-custom-counter></app-custom-counter>
+    </div>
+    <hr>
 
-<pre>{{ form.value | json }}</pre>
+    <div class="row">
+        <div class="col-6">
+            <app-user></app-user>
+        </div>
+        <div class="col-6">
+            <app-admin></app-admin>
+        </div>
+    </div>
+    
+</div>

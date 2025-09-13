@@ -1,56 +1,43 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Store } from '@ngrx/store';
+import { decrement, increment, reset } from './component/state/counter/counter.action';
+import { Observable } from 'rxjs';
+import { Icounter } from './component/state/counter/counter.store';
+import { AdminComponent } from './component/admin/admin.component';
+import { CustomCounterComponent } from './component/custom-counter/custom-counter.component';
+import { UserComponent } from './component/user/user.component';
 
 @Component({
   selector: 'app-root',
-  imports: [ReactiveFormsModule,CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, AdminComponent, UserComponent, AsyncPipe, CustomCounterComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'dynamic-form-container' }
 })
-export class AppComponent {
-  private fb = inject(FormBuilder);
-  private http = inject(HttpClient);
+export class AppComponent implements OnInit{
+  counter$ :Observable<number> | undefined;
+ 
+  constructor(private store :Store<Icounter>){
+  this.counter$ = this.store.select('counter');
+  }
+ngOnInit(): void {
+}
 
-  // Signals for fields
-  readonly fields = signal<{ fieldName: string; type: string; required: boolean }[]>([]);
-
-  readonly form = this.fb.group({
-    entries: this.fb.array<FormGroup>([])
-  });
-
-  readonly entries = computed(() => this.form.get('entries') as FormArray<FormGroup>);
-
-  constructor() {
-    this.loadLocalFields();
+ onIncrement() {
+    this.store.dispatch(increment());
+  }
+  onDecrement() {
+    this.store.dispatch(decrement());
   }
 
-  loadLocalFields(): void {
-    this.http.get<{ fieldName: string; type: string; required: boolean }[]>('/assets/fields.json')
-      .subscribe(res => {
-        this.fields.set(res);
-        this.addEntry(); // create first entity row
-      });
-  }
-
-  addEntry(): void {
-    const group: Record<string, any> = {};
-    for (const f of this.fields()) {
-      group[f.fieldName] = this.fb.control('', f.required ? Validators.required : []);
-    }
-    this.entries().push(this.fb.group(group));
-  }
-
-  removeEntry(index: number): void {
-    this.entries().removeAt(index);
-  }
-
-  onSubmit(): void {
-    console.log('Submitted form:', this.form.value.entries);
+  onReset() {
+    this.store.dispatch(reset());
   }
 
 }
+
 
